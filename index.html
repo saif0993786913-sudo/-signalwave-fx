@@ -182,7 +182,7 @@ body::before{
   margin:0 auto;
   padding:32px 28px 60px;
   display:grid;
-  grid-template-columns:1fr 320px;
+  grid-template-columns:273px 1fr 320px;
   gap:28px;
   position:relative;
   z-index:1;
@@ -308,6 +308,23 @@ body::before{
   line-height:1.6;
 }
 
+/* ---------- PRICE WIDGET COLUMN (left side, opposite the banner) ---------- */
+.price-col{display:flex;flex-direction:column;gap:18px;}
+.price-col-head h2{font-size:17px;}
+.price-col-head .bar{background:var(--steel);}
+.price-widget-frame{
+  border-radius:14px;
+  overflow:hidden;
+  border:1px solid var(--line);
+  background:var(--bg-panel);
+  width:273px;
+}
+.price-widget-frame iframe{
+  display:block;
+  width:100%;
+  border:none;
+}
+
 /* ---------- SIDEBAR ---------- */
 .sidebar{display:flex;flex-direction:column;gap:22px;}
 
@@ -397,6 +414,8 @@ footer{
 @media (max-width:980px){
   .shell{grid-template-columns:1fr;}
   .sidebar{order:-1;}
+  .price-col{order:1;align-items:center;}
+  .price-widget-frame{margin:0 auto;}
   .signal-chip{width:240px;}
 }
 @media (max-width:560px){
@@ -428,6 +447,16 @@ footer{
 </div>
 
 <div class="shell">
+  <!-- PRICE WIDGET COLUMN -->
+  <div class="price-col">
+    <div class="sec-head price-col-head">
+      <h2><span class="bar"></span>Live Prices</h2>
+    </div>
+    <div class="price-widget-frame">
+      <iframe src="https://secure.icmarkets.com//Partner/Widget/PriceWidget/8117" width="273" height="480" frameborder="0" title="IC Markets live price widget"></iframe>
+    </div>
+  </div>
+
   <!-- MAIN COLUMN -->
   <div class="main-col">
 
