@@ -8,6 +8,12 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Expanded:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // If jsdelivr is blocked/unreachable, fall back to unpkg automatically.
+  if (typeof window.supabase === 'undefined') {
+    document.write('<scr' + 'ipt src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></scr' + 'ipt>');
+  }
+</script>
 <style>
 :root{
   --bg:#0A0E14;
@@ -476,11 +482,13 @@ footer{
 const SUPABASE_URL = 'https://duwjfcoccovuyefapwww.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable_aO52yL9uZ0VN87bzMh8m7A_YZ0FfqUN';
 
-const supabase = (SUPABASE_URL.startsWith('http'))
+const sb = (SUPABASE_URL.startsWith('http') && window.supabase)
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   : null;
 
-if (!supabase) {
+if (SUPABASE_URL.startsWith('http') && !window.supabase) {
+  console.warn('SignalWave FX: Supabase library failed to load from the CDN. Check your internet connection or whether something is blocking the CDN.');
+} else if (!sb) {
   console.warn('SignalWave FX: Supabase is not configured yet. Edit SUPABASE_URL and SUPABASE_ANON_KEY at the top of visitor.html.');
 }
 
@@ -495,8 +503,8 @@ function fmtTimeShort(iso){
 
 /* ---------- LOAD ACTIVE SIGNALS ---------- */
 async function loadActiveSignals(){
-  if (!supabase) { renderEmptySignals(); return; }
-  const { data, error } = await supabase
+  if (!sb) { renderEmptySignals(); return; }
+  const { data, error } = await sb
     .from('signals')
     .select('*')
     .eq('status','active')
@@ -509,8 +517,8 @@ async function loadActiveSignals(){
 
 /* ---------- LOAD ARCHIVE COUNT (for stats only) ---------- */
 async function loadArchiveCount(){
-  if (!supabase) return 0;
-  const { count } = await supabase.from('signals').select('*', { count:'exact', head:true }).eq('status','archived');
+  if (!sb) return 0;
+  const { count } = await sb.from('signals').select('*', { count:'exact', head:true }).eq('status','archived');
   return count || 0;
 }
 
@@ -567,8 +575,8 @@ function renderTicker(signals){
 
 /* ---------- LOAD NEWS ---------- */
 async function loadNews(){
-  if (!supabase) { renderEmptyNews(); return; }
-  const { data, error } = await supabase.from('news').select('*').order('created_at', { ascending:false }).limit(20);
+  if (!sb) { renderEmptyNews(); return; }
+  const { data, error } = await sb.from('news').select('*').order('created_at', { ascending:false }).limit(20);
   if (error) { console.error(error); renderEmptyNews(); return; }
   renderNews(data || []);
 }
@@ -609,8 +617,8 @@ async function loadStats(){
 
 /* ---------- REALTIME — true broadcast feel ---------- */
 function subscribeRealtime(){
-  if (!supabase) return;
-  supabase.channel('visitor-feed')
+  if (!sb) return;
+  sb.channel('visitor-feed')
     .on('postgres_changes', { event:'*', schema:'public', table:'signals' }, ()=>{ loadActiveSignals(); loadStats(); })
     .on('postgres_changes', { event:'*', schema:'public', table:'news' }, ()=>{ loadNews(); })
     .subscribe();
