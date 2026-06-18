@@ -3,7 +3,29 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SignalWave FX — Live Market Channel</title>
+<title>SignalWave FX — Live Forex Trading Signals & Market News</title>
+<meta name="description" content="Free live forex trading signals updated in real time, with currency pair entries, stop loss, and take profit levels, plus a 24/7 market news feed.">
+<meta name="keywords" content="forex signals, live trading signals, free forex signals, forex trading signals, live market news">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://fx.fabletour.com/">
+
+<!-- Open Graph / link preview cards (WhatsApp, Facebook, LinkedIn, etc.) -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="SignalWave FX">
+<meta property="og:title" content="SignalWave FX — Live Forex Trading Signals & Market News">
+<meta property="og:description" content="Free live forex trading signals updated in real time, with currency pair entries, stop loss, and take profit levels, plus a 24/7 market news feed.">
+<meta property="og:url" content="https://fx.fabletour.com/">
+<meta property="og:image" content="https://fx.fabletour.com/og-image.png">
+
+<!-- Twitter / X card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="SignalWave FX — Live Forex Trading Signals & Market News">
+<meta name="twitter:description" content="Free live forex trading signals updated in real time, plus a 24/7 market news feed.">
+<meta name="twitter:image" content="https://fx.fabletour.com/og-image.png">
+
+<!-- Favicon -->
+<link rel="icon" type="image/png" href="favicon.png">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo+Expanded:wght@600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -279,6 +301,30 @@ body::before{
   transition:border-color 0.15s;
 }
 .news-card:hover{border-color:var(--line-bright);}
+
+/* ---------- ABOUT SECTION (static SEO content) ---------- */
+.about-section{
+  margin-top:38px;
+  padding:26px 28px;
+  background:var(--bg-panel);
+  border:1px solid var(--line);
+  border-radius:14px;
+}
+.about-heading{
+  font-family:var(--font-display);
+  font-weight:800;
+  font-size:18px;
+  letter-spacing:-0.01em;
+  margin-bottom:14px;
+}
+.about-section p{
+  color:var(--text-dim);
+  font-size:13.5px;
+  line-height:1.7;
+  margin-bottom:14px;
+}
+.about-section p:last-child{margin-bottom:0;}
+
 .news-meta{
   display:flex;align-items:center;gap:10px;
   margin-bottom:10px;
@@ -480,6 +526,16 @@ footer{
       <div class="news-grid" id="news-grid">
         <!-- populated by JS -->
       </div>
+    </div>
+
+    <!-- Static, always-visible content for search engines and first-time visitors.
+         Signals/news above are loaded dynamically from Supabase, so crawlers that
+         don't wait for JavaScript would otherwise see an empty page. -->
+    <div class="about-section">
+      <h2 class="about-heading">About SignalWave FX</h2>
+      <p>SignalWave FX is a free, live forex trading signals channel. Every signal we publish includes the currency pair, trade direction, entry price, stop loss, and take profit level, so you can see exactly what's being suggested and decide whether it fits your own strategy.</p>
+      <p>Signals are posted in real time under Active Signals at the top of this page, and update automatically as our team publishes new trades and moves closed ones to the archive. Alongside the signals, our newsroom feed shares short updates on market-moving events as they happen.</p>
+      <p>Forex trading carries risk, and signals on this channel are provided for informational purposes only, not as financial advice. Always do your own research and consider your own risk tolerance before trading.</p>
     </div>
   </div>
 
