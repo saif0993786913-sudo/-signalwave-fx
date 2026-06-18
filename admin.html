@@ -559,7 +559,7 @@ const SUPABASE_ANON_KEY = 'sb_publishable_aO52yL9uZ0VN87bzMh8m7A_YZ0FfqUN';     
 
 /* ============================================================ */
 
-const supabase = (SUPABASE_URL.startsWith('http') && window.supabase)
+const sb = (SUPABASE_URL.startsWith('http') && window.supabase)
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
   : null;
 
@@ -581,7 +581,7 @@ if (SUPABASE_URL.startsWith('http') && !window.supabase) {
 }
 
 function initApp(){
-  if (supabase) {
+  if (sb) {
     loadSignals();
     subscribeRealtime();
   } else {
@@ -603,7 +603,7 @@ document.querySelectorAll('.dir-btn').forEach(btn=>{
 /* ---------- PUBLISH SIGNAL ---------- */
 document.getElementById('signal-form').addEventListener('submit', async (e)=>{
   e.preventDefault();
-  if (!supabase) { showToast('Configure Supabase URL + anon key first.', true); return; }
+  if (!sb) { showToast('Configure Supabase URL + anon key first.', true); return; }
 
   const btn = document.getElementById('publish-btn');
   btn.disabled = true;
@@ -618,7 +618,7 @@ document.getElementById('signal-form').addEventListener('submit', async (e)=>{
     status: 'active'
   };
 
-  const { error } = await supabase.from('signals').insert(payload);
+  const { error } = await sb.from('signals').insert(payload);
   btn.disabled = false;
 
   if (error) { showToast('Failed to publish: ' + error.message, true); return; }
@@ -634,14 +634,14 @@ document.getElementById('signal-form').addEventListener('submit', async (e)=>{
 /* ---------- POST NEWS ---------- */
 document.getElementById('news-form').addEventListener('submit', async (e)=>{
   e.preventDefault();
-  if (!supabase) { showToast('Configure Supabase URL + anon key first.', true); return; }
+  if (!sb) { showToast('Configure Supabase URL + anon key first.', true); return; }
 
   const payload = {
     title: document.getElementById('n-title').value.trim(),
     body: document.getElementById('n-body').value.trim()
   };
 
-  const { error } = await supabase.from('news').insert(payload);
+  const { error } = await sb.from('news').insert(payload);
   if (error) { showToast('Failed to post: ' + error.message, true); return; }
 
   showToast('Posted to the newsroom feed.');
@@ -653,8 +653,8 @@ document.getElementById('news-form').addEventListener('submit', async (e)=>{
 let allSignals = [];
 
 async function loadSignals(){
-  if (!supabase) return;
-  const { data, error } = await supabase.from('signals').select('*').order('created_at', { ascending:false });
+  if (!sb) return;
+  const { data, error } = await sb.from('signals').select('*').order('created_at', { ascending:false });
   if (error) { showToast('Failed to load signals: ' + error.message, true); return; }
   allSignals = data || [];
   renderBoards();
@@ -745,15 +745,15 @@ async function handleSignalAction(e){
 
   if (action === 'delete') {
     if (!confirm('Delete this signal permanently? This cannot be undone.')) return;
-    const { error } = await supabase.from('signals').delete().eq('id', id);
+    const { error } = await sb.from('signals').delete().eq('id', id);
     if (error) { showToast('Delete failed: ' + error.message, true); return; }
     showToast('Signal deleted.');
   } else if (action === 'archive') {
-    const { error } = await supabase.from('signals').update({ status:'archived', archived_at: new Date().toISOString() }).eq('id', id);
+    const { error } = await sb.from('signals').update({ status:'archived', archived_at: new Date().toISOString() }).eq('id', id);
     if (error) { showToast('Archive failed: ' + error.message, true); return; }
     showToast('Moved to archive.');
   } else if (action === 'restore') {
-    const { error } = await supabase.from('signals').update({ status:'active', archived_at:null }).eq('id', id);
+    const { error } = await sb.from('signals').update({ status:'active', archived_at:null }).eq('id', id);
     if (error) { showToast('Restore failed: ' + error.message, true); return; }
     showToast('Restored to active.');
   }
@@ -773,7 +773,7 @@ document.querySelectorAll('.board-tab').forEach(tab=>{
 
 /* ---------- REALTIME ---------- */
 function subscribeRealtime(){
-  supabase.channel('admin-signals')
+  sb.channel('admin-signals')
     .on('postgres_changes', { event:'*', schema:'public', table:'signals' }, ()=>{ loadSignals(); })
     .subscribe();
 }
