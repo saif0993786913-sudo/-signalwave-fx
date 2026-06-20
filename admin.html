@@ -567,6 +567,8 @@ body::before{
    ============================================================ */
 const SUPABASE_URL = 'https://duwjfcoccovuyefapwww.supabase.co';        // e.g. https://abcxyz.supabase.co
 const SUPABASE_ANON_KEY = 'sb_publishable_aO52yL9uZ0VN87bzMh8m7A_YZ0FfqUN';       // Project Settings -> API -> anon public key
+const SEND_SIGNAL_EMAIL_URL = 'https://duwjfcoccovuyefapwww.supabase.co/functions/v1/send-signal-email';
+const SEND_SIGNAL_EMAIL_BEARER = 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1d2pmY29jY292dXllZmFwd3d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE3ODE3MDgsImV4cCI6MjA1NzM1NzcwOH0.KIDLxRG_JT5EzTiNat6mZ4E92x5J5UZYRVYTI5wZhZ0';
 
 /* ============================================================ */
 
@@ -641,25 +643,39 @@ document.getElementById('signal-form').addEventListener('submit', async (e)=>{
   };
 
   const { error } = await sb.from('signals').insert(payload);
+  if (error) {
+    btn.disabled = false;
+    showToast('Failed to publish: ' + error.message, true);
+    return;
+  }
 
-  if (!error) {
-    // Fire-and-forget: trigger the email notification function.
-    // Wrapped in .catch so a failure here never blocks the publish flow above.
-    fetch('https://duwjfcoccovuyefapwww.supabase.co/functions/v1/send-signal-email', {
+  let emailError = null;
+  try {
+    const res = await fetch(SEND_SIGNAL_EMAIL_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY
+        'Authorization': SEND_SIGNAL_EMAIL_BEARER
       },
       body: JSON.stringify(payload)
-    }).catch(err => console.warn('Email notification request failed:', err));
+    });
+
+    if (!res.ok) {
+      const body = await res.text();
+      emailError = `Email webhook failed (${res.status}): ${body}`;
+    }
+  } catch (err) {
+    emailError = err.message || String(err);
   }
 
   btn.disabled = false;
 
-  if (error) { showToast('Failed to publish: ' + error.message, true); return; }
+  if (emailError) {
+    showToast('Published but email send failed: ' + emailError, true);
+  } else {
+    showToast('Signal published — email sent immediately.');
+  }
 
-  showToast('Signal published — now live on the channel.');
   e.target.reset();
   document.querySelectorAll('.dir-btn').forEach(b=>b.classList.remove('active'));
   document.querySelector('.dir-btn.buy').classList.add('active');
