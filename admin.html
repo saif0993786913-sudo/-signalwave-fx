@@ -640,7 +640,16 @@ document.getElementById('signal-form').addEventListener('submit', async (e)=>{
     status: 'active'
   };
 
-  const { error } = await sb.from('signals').insert(payload);
+  const { error } = await sb.from('signals').insert(payload);      if (!error) {
+        fetch('https://duwjfcoccovuyefapwwww.supabase.co/functions/v1/send-signal-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR1d2pmY29jY292dXllZmFwd3d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE3ODE3MDgsImV4cCI6MjA1NzM1NzcwOH0.KIDLxRG_JT5EzTiNat6mZ4E92x5J5UZYRVYTI5wZhZ0'
+          },
+          body: JSON.stringify(payload)
+        });
+      }
   btn.disabled = false;
 
   if (error) { showToast('Failed to publish: ' + error.message, true); return; }
