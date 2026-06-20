@@ -641,7 +641,7 @@ document.getElementById('signal-form').addEventListener('submit', async (e)=>{
   };
 
   const { error } = await sb.from('signals').insert(payload);      if (!error) {
-        fetch('https://duwjfcoccovuyefapwwww.supabase.co/functions/v1/send-signal-email', {
+        fetch('https://duwjfcoccovuyefapwww.supabase.co/functions/v1/send-signal-email', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
