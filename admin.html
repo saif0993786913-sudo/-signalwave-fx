@@ -124,6 +124,16 @@ body::before{
   font-weight:600;
   letter-spacing:0.08em;
 }
+.subscriber-badge{
+  font-family:var(--font-mono);
+  font-size:11px;
+  color:var(--text-dim);
+  background:var(--bg-panel);
+  border:1px solid var(--line);
+  border-radius:100px;
+  padding:8px 16px;
+  margin-left:12px;
+}
 .main-grid{
   display:grid;
   grid-template-columns:380px 1fr;
@@ -457,6 +467,7 @@ body::before{
       </div>
     </div>
     <div class="air-status"><div class="dot"></div><span>BROADCASTING LIVE</span></div>
+    <div class="subscriber-badge" id="subscriber-badge">— subscribers</div>
   </div>
 
   <div class="main-grid">
@@ -583,12 +594,23 @@ if (SUPABASE_URL.startsWith('http') && !window.supabase) {
 function initApp(){
   if (sb) {
     loadSignals();
+    loadSubscriberCount();
     subscribeRealtime();
   } else {
     showToast('Supabase is not configured — signals will not load or save.', true);
   }
 }
 initApp();
+
+async function loadSubscriberCount(){
+  const { data, error } = await sb.rpc('get_subscriber_count');
+  const badge = document.getElementById('subscriber-badge');
+  if (error || data === null || data === undefined) {
+    badge.textContent = '— subscribers';
+    return;
+  }
+  badge.textContent = `${data} subscriber${data === 1 ? '' : 's'}`;
+}
 
 /* ---------- DIRECTION TOGGLE ---------- */
 let currentDirection = 'BUY';
