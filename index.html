@@ -234,6 +234,89 @@ body::before{
 /* ---------- ACTIVE SIGNALS RAIL (top of main column) ---------- */
 .signals-rail{margin-bottom:38px;}
 .signals-rail .sec-head h2 .bar{background:var(--buy);}
+
+/* ---------- EMAIL SIGNUP ---------- */
+.signup-block{
+  background:linear-gradient(135deg, rgba(74,111,255,0.08), rgba(255,59,48,0.06));
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:22px 24px;
+  margin-bottom:32px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:24px;
+  flex-wrap:wrap;
+}
+.signup-text{flex:1;min-width:220px;}
+.signup-eyebrow{
+  font-family:var(--font-mono);
+  font-size:10.5px;
+  font-weight:700;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  color:var(--steel);
+  margin-bottom:6px;
+}
+.signup-text h3{
+  font-family:var(--font-display);
+  font-weight:800;
+  font-size:17px;
+  letter-spacing:-0.01em;
+  margin-bottom:4px;
+}
+.signup-text p{
+  font-size:12.5px;
+  color:var(--text-dim);
+}
+.signup-form{
+  display:flex;
+  gap:10px;
+  flex-shrink:0;
+  width:100%;
+  max-width:380px;
+}
+.signup-form input{
+  flex:1;
+  min-width:0;
+  background:var(--bg-input,var(--bg));
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:12px 14px;
+  color:var(--text);
+  font-family:var(--font-body);
+  font-size:13.5px;
+}
+.signup-form input:focus{outline:none;border-color:var(--steel);}
+.signup-form button{
+  background:var(--on-air);
+  color:#fff;
+  border:none;
+  border-radius:10px;
+  padding:12px 20px;
+  font-family:var(--font-body);
+  font-weight:700;
+  font-size:13.5px;
+  cursor:pointer;
+  white-space:nowrap;
+  transition:background 0.15s;
+}
+.signup-form button:hover{background:#E8362C;}
+.signup-form button:disabled{opacity:0.6;cursor:not-allowed;}
+.signup-message{
+  width:100%;
+  font-size:12px;
+  font-family:var(--font-mono);
+  margin-top:2px;
+}
+.signup-message.success{color:var(--buy);}
+.signup-message.error{color:var(--sell);}
+
+@media (max-width:600px){
+  .signup-block{flex-direction:column;align-items:stretch;}
+  .signup-form{max-width:none;flex-direction:column;}
+  .signup-form button{width:100%;}
+}
 .rail-scroll{
   display:flex;
   gap:14px;
@@ -506,6 +589,20 @@ footer{
   <!-- MAIN COLUMN -->
   <div class="main-col">
 
+    <!-- EMAIL SIGNUP -->
+    <div class="signup-block">
+      <div class="signup-text">
+        <div class="signup-eyebrow">Free alerts</div>
+        <h3>Get every signal by email</h3>
+        <p>Pair, entry, stop loss, and take profit — the moment we publish.</p>
+      </div>
+      <form id="signup-form" class="signup-form">
+        <input type="email" id="signup-email" placeholder="you@email.com" required autocomplete="email">
+        <button type="submit" id="signup-btn">Subscribe</button>
+      </form>
+      <div id="signup-message" class="signup-message"></div>
+    </div>
+
     <!-- ACTIVE SIGNALS RAIL -->
     <div class="signals-rail">
       <div class="sec-head">
@@ -708,6 +805,46 @@ function subscribeRealtime(){
     .on('postgres_changes', { event:'*', schema:'public', table:'news' }, ()=>{ loadNews(); })
     .subscribe();
 }
+
+/* ---------- EMAIL SIGNUP ---------- */
+document.getElementById('signup-form').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const msgEl = document.getElementById('signup-message');
+  const btn = document.getElementById('signup-btn');
+  const emailInput = document.getElementById('signup-email');
+  const email = emailInput.value.trim();
+
+  msgEl.textContent = '';
+  msgEl.className = 'signup-message';
+
+  if (!sb) {
+    msgEl.textContent = 'Signups are temporarily unavailable. Please try again later.';
+    msgEl.classList.add('error');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Subscribing...';
+
+  const { error } = await sb.from('subscribers').insert({ email });
+
+  btn.disabled = false;
+  btn.textContent = 'Subscribe';
+
+  if (error) {
+    if (error.code === '23505') {
+      msgEl.textContent = "You're already subscribed with that email.";
+    } else {
+      msgEl.textContent = 'Something went wrong. Please try again.';
+    }
+    msgEl.classList.add('error');
+    return;
+  }
+
+  msgEl.textContent = "You're subscribed — signal alerts will land in your inbox.";
+  msgEl.classList.add('success');
+  emailInput.value = '';
+});
 
 /* ---------- INIT ---------- */
 loadActiveSignals();
