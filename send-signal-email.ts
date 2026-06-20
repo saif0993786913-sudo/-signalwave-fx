@@ -42,35 +42,113 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ message: 'No subscribers, nothing sent' }), { status: 200 })
     }
 
-    const directionColor = direction === 'BUY' ? '#00D964' : '#FF3B5C'
+    const directionColor = direction === 'BUY' ? '#0FA968' : '#E5384B'
+    const directionBg = direction === 'BUY' ? '#E7F8EF' : '#FCEAEC'
     const directionArrow = direction === 'BUY' ? '▲' : '▼'
+    const HEADER_IMAGE_URL = 'https://fx.fabletour.com/email-header.png'
 
     const emailHtml = `
-      <div style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;background:#0A0E14;color:#E8ECF1;padding:28px;border-radius:14px;">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
-          <div style="width:34px;height:34px;border-radius:8px;background:#FF3B30;color:#fff;display:inline-flex;align-items:center;justify-content:center;font-weight:bold;font-size:14px;">SW</div>
-          <span style="font-size:15px;font-weight:bold;">SignalWave FX</span>
-        </div>
-        <h2 style="margin:0 0 4px;font-size:22px;">${pair} <span style="color:${directionColor};font-size:16px;">${directionArrow} ${direction}</span></h2>
-        <p style="color:#8B95A7;font-size:13px;margin:0 0 20px;">New signal just published</p>
-        <table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin:0;padding:0;background-color:#F3F4F6;font-family:Arial,Helvetica,sans-serif;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#F3F4F6;padding:24px 0;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background-color:#FFFFFF;border-radius:12px;overflow:hidden;border:1px solid #E6E8EB;">
+
+          <!-- HEADER BANNER -->
           <tr>
-            <td style="padding:10px 0;border-bottom:1px solid #1E2733;color:#8B95A7;font-size:12px;text-transform:uppercase;">Entry</td>
-            <td style="padding:10px 0;border-bottom:1px solid #1E2733;text-align:right;font-weight:bold;">${entry}</td>
+            <td style="background-color:#FFFFFF;">
+              <img src="${HEADER_IMAGE_URL}" width="600" alt="SignalWave FX — 24/7 Market Channel" style="display:block;width:100%;max-width:600px;height:auto;border:0;">
+            </td>
           </tr>
+
+          <!-- BODY -->
           <tr>
-            <td style="padding:10px 0;border-bottom:1px solid #1E2733;color:#8B95A7;font-size:12px;text-transform:uppercase;">Stop Loss</td>
-            <td style="padding:10px 0;border-bottom:1px solid #1E2733;text-align:right;font-weight:bold;color:#FF3B5C;">${stop_loss}</td>
+            <td style="padding:32px 36px 8px;">
+              <p style="margin:0 0 6px;font-size:12px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#7C8493;">New Signal Published</p>
+              <table role="presentation" cellpadding="0" cellspacing="0">
+                <tr>
+                  <td style="font-size:26px;font-weight:bold;color:#16181D;padding-right:10px;">${pair}</td>
+                  <td>
+                    <span style="display:inline-block;background-color:${directionBg};color:${directionColor};font-size:13px;font-weight:bold;padding:5px 12px;border-radius:6px;">${directionArrow} ${direction}</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
           </tr>
+
+          <!-- SIGNAL DETAILS TABLE -->
           <tr>
-            <td style="padding:10px 0;color:#8B95A7;font-size:12px;text-transform:uppercase;">Take Profit</td>
-            <td style="padding:10px 0;text-align:right;font-weight:bold;color:#00D964;">${take_profit}</td>
+            <td style="padding:16px 36px 8px;">
+              <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #EEEFF1;">
+                <tr>
+                  <td style="padding:14px 0;border-bottom:1px solid #EEEFF1;font-size:12px;font-weight:bold;letter-spacing:0.5px;text-transform:uppercase;color:#7C8493;">Entry</td>
+                  <td style="padding:14px 0;border-bottom:1px solid #EEEFF1;text-align:right;font-size:15px;font-weight:bold;color:#16181D;">${entry}</td>
+                </tr>
+                <tr>
+                  <td style="padding:14px 0;border-bottom:1px solid #EEEFF1;font-size:12px;font-weight:bold;letter-spacing:0.5px;text-transform:uppercase;color:#7C8493;">Stop Loss</td>
+                  <td style="padding:14px 0;border-bottom:1px solid #EEEFF1;text-align:right;font-size:15px;font-weight:bold;color:#E5384B;">${stop_loss}</td>
+                </tr>
+                <tr>
+                  <td style="padding:14px 0;font-size:12px;font-weight:bold;letter-spacing:0.5px;text-transform:uppercase;color:#7C8493;">Take Profit</td>
+                  <td style="padding:14px 0;text-align:right;font-size:15px;font-weight:bold;color:#0FA968;">${take_profit}</td>
+                </tr>
+              </table>
+            </td>
           </tr>
+
+          ${notes ? `
+          <!-- NOTES -->
+          <tr>
+            <td style="padding:8px 36px 8px;">
+              <p style="margin:0;font-size:13.5px;line-height:1.6;color:#5B6270;background-color:#F8F9FA;border-radius:8px;padding:14px 16px;">${notes}</p>
+            </td>
+          </tr>` : ''}
+
+          <!-- CTA BUTTON -->
+          <tr>
+            <td style="padding:24px 36px 32px;">
+              <table role="presentation" cellpadding="0" cellspacing="0" width="100%">
+                <tr>
+                  <td align="center" style="background-color:#FF3B30;border-radius:8px;">
+                    <a href="https://fx.fabletour.com/" style="display:block;padding:14px 0;font-size:14px;font-weight:bold;color:#FFFFFF;text-decoration:none;">View Live Channel</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+
+          <!-- SPONSOR BANNER -->
+          <tr>
+            <td style="padding:0 36px 24px;" align="center">
+              <p style="margin:0 0 10px;font-size:10px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;color:#9AA1AC;text-align:center;">Sponsored</p>
+              <a href="https://icmarkets.com/?camp=8117" target="_blank" style="display:inline-block;">
+                <img src="https://promo.icmarkets.com/Banners/2021/English/EN_970x250_Cellphon_FSA.jpg" width="528" height="136" alt="IC Markets" style="display:block;width:100%;max-width:528px;height:auto;border:0;border-radius:8px;">
+              </a>
+            </td>
+          </tr>
+
+          <!-- FOOTER -->
+          <tr>
+            <td style="padding:20px 36px 28px;border-top:1px solid #EEEFF1;">
+              <p style="margin:0;font-size:11px;line-height:1.6;color:#9AA1AC;text-align:center;">
+                You're receiving this because you subscribed at fx.fabletour.com.<br>
+                Trading carries risk. Signals are provided for informational purposes only and are not financial advice.
+              </p>
+            </td>
+          </tr>
+
         </table>
-        ${notes ? `<p style="color:#8B95A7;font-size:13px;line-height:1.5;margin-bottom:20px;">${notes}</p>` : ''}
-        <a href="https://fx.fabletour.com/" style="display:block;text-align:center;background:#FF3B30;color:#fff;padding:12px;border-radius:9px;text-decoration:none;font-weight:bold;font-size:14px;">View live channel</a>
-        <p style="color:#566073;font-size:10px;margin-top:20px;text-align:center;">You're receiving this because you subscribed at fx.fabletour.com. Trading carries risk; this is not financial advice.</p>
-      </div>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
     `
 
     // Resend free tier doesn't support true bulk-send to many distinct
